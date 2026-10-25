@@ -10,6 +10,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import os
 import re
 import tempfile
 from contextlib import asynccontextmanager
@@ -38,8 +39,13 @@ def friendly_error(e: Exception, settings: Settings) -> str:
     if "429" in msg or "resource_exhausted" in low or "quota" in low:
         return ("The Gemini API rate limit or daily quota was reached. Wait a minute and try again, "
                 "or lower GEMINI_RPM in .env.")
-    if "api key not valid" in low or "api_key_invalid" in low or "permission_denied" in low or "401" in msg:
-        return "Gemini rejected the API key. Check GOOGLE_API_KEY in backend/.env and restart the server."
+    where = ("the hr-policy-bot Modal secret, then redeploy" if (os.environ.get("MODAL_IS_REMOTE") or os.environ.get("MODAL_TASK_ID"))
+             else "GOOGLE_API_KEY in backend/.env, then restart the server")
+    if "api key not valid" in low or "api_key_invalid" in low or "401" in msg:
+        return f"Gemini rejected the API key as invalid. Check {where}."
+    if "permission_denied" in low or "403" in msg:
+        return ("Gemini refused the request (HTTP 403): the key may be restricted, or the Gemini API isn't enabled "
+                f"for its Google Cloud project. Create a key at aistudio.google.com/apikey and update {where}.")
     if "404" in msg or ("not found" in low and "model" in low):
         return (f"The model '{settings.gemini_model}' isn't available for this key. "
                 "Run `python scripts/list_models.py` and set GEMINI_MODEL in .env.")
