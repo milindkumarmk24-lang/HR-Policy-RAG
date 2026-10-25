@@ -1,0 +1,32 @@
+flowchart TB
+  subgraph ING["Ingestion (once per PDF)"]
+    direction LR
+    PDF["PDF upload"] --> LOAD["PyPDFLoader<br/>one text per page"]
+    LOAD --> CLEAN["Clean<br/>strip running headers and footers,<br/>re-join wrapped lines"]
+    CLEAN --> CHUNK["Section-aware chunking<br/>RecursiveCharacterTextSplitter inside each<br/>numbered section; page + section metadata"]
+    CHUNK --> EMB["Local embeddings<br/>bge-small-en-v1.5"]
+    EMB --> IDX[("FAISS index<br/>inner product on<br/>normalised vectors")]
+  end
+
+  subgraph ASK["Per question: LCEL chain in FastAPI (Modal)"]
+    direction LR
+    Q["Question + last 3 turns"] --> ROUTE["Router and decomposer<br/>Gemini structured output<br/>(rule-based fallback)"]
+    ROUTE -->|"chitchat / out of scope"| DIRECT["Direct reply,<br/>no retrieval"]
+    ROUTE -->|"policy_lookup, summary: 1 query<br/>multi_part: 2-4 sub-questions"| RET["FAISS top-12 per sub-question<br/>(24 for summaries)"]
+    RET --> RR["Cross-encoder re-rank<br/>ms-marco-MiniLM-L-6-v2<br/>keep 4 (3 per sub-question,<br/>10 in handbook order for summaries)"]
+    RR --> PROMPT["Grounding prompt<br/>numbered sources S1..Sn<br/>with page and section"]
+    PROMPT --> GEN["Gemini 3.5 Flash-Lite<br/>streamed"]
+    GEN --> CITE["Citation check<br/>drop unknown S#, mark cited sources"]
+  end
+
+  IDX -.-> RET
+  subgraph OUT["Delivery and evaluation"]
+    direction LR
+    UI
+    EVQ
+    LOG
+  end
+  CITE -->|"SSE: plan, sources, tokens, done"| UI["Next.js UI on Vercel<br/>answer, margin notes, PDF at cited page,<br/>re-rank slope chart, RAGAS scores"]
+  CITE --> EVQ["Background RAGAS worker<br/>Gemini as judge"]
+  EVQ --> LOG[("data/logs/ragas_eval.jsonl<br/>faithfulness, answer relevancy,<br/>context precision")]
+  LOG -.->|"GET /api/evals"| UI

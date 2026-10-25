@@ -1,0 +1,4 @@
+-r requirements.txt
+pytest==9.1.1
+httpx==0.28.1
+reportlab==5.1.0   # only for scripts/make_sample_handbook.py

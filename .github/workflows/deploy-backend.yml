@@ -1,0 +1,33 @@
+name: Deploy backend to Modal
+
+# Redeploys the API whenever backend code changes on main. Needs two repository
+# secrets (Settings > Secrets and variables > Actions): MODAL_TOKEN_ID and
+# MODAL_TOKEN_SECRET, from modal.com > Settings > API Tokens. Without them this
+# workflow does nothing.
+on:
+  push:
+    branches: [main]
+    paths: ["backend/**", ".github/workflows/deploy-backend.yml"]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+      MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
+    steps:
+      - name: Check Modal credentials
+        if: env.MODAL_TOKEN_ID == ''
+        run: echo "MODAL_TOKEN_ID is not set; skipping deploy. See the README's Deployment section."
+      - uses: actions/checkout@v5
+        if: env.MODAL_TOKEN_ID != ''
+      - uses: actions/setup-python@v6
+        if: env.MODAL_TOKEN_ID != ''
+        with:
+          python-version: "3.12"
+      - name: Deploy
+        if: env.MODAL_TOKEN_ID != ''
+        run: |
+          pip install modal
+          modal deploy backend/modal_app.py

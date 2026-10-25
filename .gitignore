@@ -1,0 +1,29 @@
+# secrets
+.env
+backend/.env
+*.env.local
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# runtime data (index, uploads, query logs)
+backend/data/index/
+backend/data/uploads/
+backend/data/logs/
+
+# node / next
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/next-env.d.ts
+frontend/tsconfig.tsbuildinfo
+
+# os / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
