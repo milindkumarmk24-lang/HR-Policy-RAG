@@ -7,7 +7,7 @@ questions with page citations.
 |---|---|
 | **Live app** | `https://<your-project>.vercel.app` (frontend on Vercel) |
 | **API** | `https://<your-workspace>--hr-policy-bot.modal.run` (backend on Modal; interactive docs at `/docs`) |
-| **Repository** | https://github.com/milindkumarmk18-blip/HR-RAG-Pipeline |
+| **Repository** | https://github.com/milindkumarmk24-lang/HR-Policy-RAG |
 | **Submission** | Option A, hosted link plus repo |
 
 Ask a question about an employee handbook and get an answer that cites the exact section and page it came from.
@@ -153,8 +153,8 @@ Needs **Python 3.10–3.13** and **Git**. **Node.js 20+** is only needed to rebu
 on answers and RAGAS (without one, the app runs in passages-only mode).
 
 ```powershell
-git clone https://github.com/milindkumarmk18-blip/HR-RAG-Pipeline.git
-cd HR-RAG-Pipeline
+git clone https://github.com/milindkumarmk24-lang/HR-Policy-RAG.git
+cd HR-Policy-RAG
 powershell -ExecutionPolicy Bypass -File .\setup.ps1     # venv, packages, backend\.env, UI build if Node is present
 notepad backend\.env                                     # set GOOGLE_API_KEY=...
 powershell -ExecutionPolicy Bypass -File .\start.ps1     # http://localhost:8000
@@ -364,7 +364,7 @@ git init -b main
 git add .
 git status                      # backend/.env, .venv and node_modules must NOT be listed
 git commit -m "HR Policy Bot: Phase 1 RAG assistant"
-git remote add origin https://github.com/milindkumarmk18-blip/HR-RAG-Pipeline.git
+git remote add origin https://github.com/milindkumarmk24-lang/HR-Policy-RAG.git
 git push -u origin main
 ```
 
@@ -391,7 +391,7 @@ token at modal.com → Settings → API Tokens); `.github/workflows/deploy-backe
 
 ### 3. Frontend on Vercel
 
-1. At [vercel.com](https://vercel.com), sign in with GitHub → **Add New → Project** → import `HR-RAG-Pipeline`.
+1. At [vercel.com](https://vercel.com), sign in with GitHub → **Add New → Project** → import `HR-Policy-RAG`.
 2. Set **Root Directory** to `frontend` (Vercel detects Next.js).
 3. Under **Environment Variables**, add `NEXT_PUBLIC_API_BASE` = your Modal URL (no trailing slash).
 4. **Deploy**. Every later push to `main` redeploys automatically.
